@@ -1,0 +1,1398 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!--- MediConnect — AI Healthcare -->
+<title>MediConnect</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+
+<style>
+/* ── Design tokens ── */
+:root {
+  /* Layout: sticky nav + hero + card grid, single-page SPA with hash routing */
+  --bg: #f7f9fc;
+  --bg2: #ffffff;
+  --bg3: #eef2f8;
+  --fg: #0f1f3d;
+  --fg2: #4a5568;
+  --fg3: #8896aa;
+  --accent: #1a6ef5;
+  --accent2: #0f4fc2;
+  --accent-soft: #e8f0fe;
+  --green: #12b76a;
+  --green-soft: #e6f9f0;
+  --orange: #f59e0b;
+  --orange-soft: #fef3c7;
+  --red: #ef4444;
+  --red-soft: #fee2e2;
+  --border: #dde4f0;
+  --shadow: 0 2px 12px rgba(15,31,61,0.07);
+  --shadow-md: 0 4px 24px rgba(15,31,61,0.11);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1220;
+    --bg2: #141d30;
+    --bg3: #1a2540;
+    --fg: #e8edf5;
+    --fg2: #9aafc8;
+    --fg3: #5a6f8a;
+    --accent: #4d8dff;
+    --accent2: #2d6adf;
+    --accent-soft: #1a2e50;
+    --green: #34d399;
+    --green-soft: #0d2e20;
+    --orange: #fbbf24;
+    --orange-soft: #2a1f06;
+    --red: #f87171;
+    --red-soft: #2a0f0f;
+    --border: #1e2e48;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1220; --bg2: #141d30; --bg3: #1a2540;
+  --fg: #e8edf5; --fg2: #9aafc8; --fg3: #5a6f8a;
+  --accent: #4d8dff; --accent2: #2d6adf; --accent-soft: #1a2e50;
+  --green: #34d399; --green-soft: #0d2e20;
+  --orange: #fbbf24; --orange-soft: #2a1f06;
+  --red: #f87171; --red-soft: #2a0f0f;
+  --border: #1e2e48;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.4);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+/* NAV */
+nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 101;
+  background: var(--bg2);
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: auto;
+  padding-block: 14px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 6px;
+  list-style: none;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--fg2);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  transition: background 0.18s, color 0.18s;
+}
+.nav-links a:hover, .nav-links a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.18s;
+  text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,110,245,0.35); }
+.btn-ghost { background: transparent; color: var(--fg2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg3); color: var(--fg); }
+.theme-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+  transition: background 0.18s;
+}
+.theme-btn:hover { background: var(--border); }
+
+/* PAGE SECTIONS */
+.page { display: none; }
+.page.active { display: block; }
+
+/* HERO */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 0 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; padding: 40px 0 32px; gap: 32px; }
+  .hero-visual { display: none; }
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 18px;
+}
+.hero h1 span { color: var(--accent); }
+.hero p {
+  color: var(--fg2);
+  font-size: 1.05rem;
+  max-width: 480px;
+  margin-bottom: 32px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-stats {
+  display: flex; gap: 28px; margin-top: 40px; flex-wrap: wrap;
+}
+.stat-item { display: flex; flex-direction: column; }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: 0.78rem; color: var(--fg3); }
+
+/* Hero visual */
+.hero-visual {
+  display: flex; justify-content: center; align-items: center;
+}
+.hero-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 340px;
+}
+.hero-card-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.ai-badge {
+  background: linear-gradient(135deg, #1a6ef5, #7c3aed);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+.symptom-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.symptom-tag {
+  background: var(--bg3);
+  color: var(--fg2);
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+}
+.ai-result {
+  background: var(--accent-soft);
+  border: 1px solid rgba(26,110,245,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+.ai-result-label { font-size: 0.72rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.ai-result-text { font-size: 0.88rem; color: var(--fg); font-weight: 500; }
+.ai-typing { display: flex; gap: 4px; align-items: center; margin-top: 10px; }
+.dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* SECTION HEADERS */
+.section-header { text-align: center; margin-bottom: 48px; }
+.section-eyebrow {
+  display: inline-block;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.section-header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  text-wrap: balance;
+  margin-bottom: 12px;
+}
+.section-header p { color: var(--fg2); max-width: 520px; margin: auto; }
+
+/* FEATURES STRIP */
+.features-strip {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 0;
+  margin-bottom: 72px;
+}
+.features-strip-inner {
+  max-width: 1200px; margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+@media (max-width: 768px) { .features-strip-inner { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .features-strip-inner { grid-template-columns: 1fr; } }
+.feature-item { display: flex; gap: 14px; align-items: flex-start; }
+.feature-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.feature-item h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+.feature-item p { font-size: 0.8rem; color: var(--fg3); line-height: 1.45; }
+
+/* CONTENT WRAPPER */
+.content-wrap { max-width: 1200px; margin: auto; padding-bottom: 80px; }
+
+/* SPECIALTY GRID */
+.specialty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 64px;
+}
+.specialty-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.specialty-card:hover, .specialty-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.specialty-card.selected .spec-name { color: var(--accent); }
+.spec-icon { font-size: 28px; margin-bottom: 8px; }
+.spec-name { font-size: 0.82rem; font-weight: 600; color: var(--fg); }
+.spec-count { font-size: 0.72rem; color: var(--fg3); margin-top: 2px; }
+
+/* DOCTOR GRID */
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+}
+.doctor-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.doctor-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.doctor-top { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+.doctor-avatar {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 700; font-size: 1.1rem;
+  color: white;
+}
+.doctor-info h3 { font-size: 0.95rem; font-weight: 700; font-family: var(--font-display); margin-bottom: 3px; }
+.doctor-spec { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+.doctor-loc { font-size: 0.78rem; color: var(--fg3); }
+.doctor-stats { display: flex; gap: 14px; margin-bottom: 14px; }
+.doc-stat { font-size: 0.78rem; color: var(--fg2); display: flex; align-items: center; gap: 4px; }
+.stars { color: var(--orange); font-size: 0.82rem; }
+.doctor-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.tag {
+  font-size: 0.72rem; padding: 3px 10px;
+  border-radius: 100px;
+  background: var(--bg3);
+  color: var(--fg2);
+  border: 1px solid var(--border);
+}
+.tag.available { background: var(--green-soft); color: var(--green); border-color: rgba(18,183,106,0.2); }
+.tag.busy { background: var(--orange-soft); color: var(--orange); border-color: rgba(245,158,11,0.2); }
+.book-btn {
+  width: 100%; padding: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(26,110,245,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.18s;
+  font-family: var(--font-body);
+}
+.book-btn:hover { background: var(--accent); color: white; }
+
+/* SEARCH BAR */
+.search-wrap {
+  display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 200px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg2);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--fg3); }
+select.search-input { cursor: pointer; }
+
+/* SYMPTOM CHECKER */
+.checker-wrap {
+  max-width: 760px; margin: auto;
+}
+.checker-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.checker-header {
+  background: linear-gradient(135deg, #1a6ef5 0%, #7c3aed 100%);
+  padding: 28px 32px;
+  color: white;
+}
+.checker-header h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+.checker-header p { font-size: 0.88rem; opacity: 0.85; }
+.checker-body { padding: 32px; }
+.checker-label { font-size: 0.82rem; font-weight: 600; color: var(--fg2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.symptom-input-wrap { position: relative; margin-bottom: 16px; }
+.symptom-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.symptom-input:focus { border-color: var(--accent); }
+.symptom-input::placeholder { color: var(--fg3); }
+.symptom-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.symptom-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(26,110,245,0.25);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.symptom-chip:hover { background: var(--accent); color: white; }
+.symptom-chip.active { background: var(--accent); color: white; }
+.quick-symptoms { margin-bottom: 24px; }
+.quick-label { font-size: 0.78rem; color: var(--fg3); margin-bottom: 8px; }
+.selected-symptoms { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; margin-bottom: 20px; }
+.sel-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--accent);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 0.8rem; font-weight: 500;
+}
+.sel-chip button {
+  background: rgba(255,255,255,0.25);
+  border: none; color: white;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  cursor: pointer; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+}
+.analyze-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #1a6ef5, #7c3aed);
+  color: white;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  font-family: var(--font-body);
+  margin-bottom: 24px;
+}
+.analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,110,245,0.35); }
+.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* AI RESULT */
+.ai-result-box { display: none; }
+.ai-result-box.visible { display: block; }
+.ai-thinking {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.88rem; color: var(--fg2);
+}
+.result-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.result-section-title {
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--fg3); margin-bottom: 12px;
+}
+.condition-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.condition-item:last-child { border-bottom: none; }
+.condition-name { font-size: 0.9rem; font-weight: 600; }
+.condition-desc { font-size: 0.78rem; color: var(--fg3); margin-top: 2px; }
+.prob-bar-wrap { width: 100px; }
+.prob-label { font-size: 0.72rem; color: var(--fg3); text-align: right; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+.prob-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.prob-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
+.urgency-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 0.85rem; font-weight: 600; margin-bottom: 16px;
+}
+.urgency-low { background: var(--green-soft); color: var(--green); }
+.urgency-medium { background: var(--orange-soft); color: var(--orange); }
+.urgency-high { background: var(--red-soft); color: var(--red); }
+.specialist-rec {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(26,110,245,0.2);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.spec-rec-icon { font-size: 28px; }
+.spec-rec-title { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-bottom: 3px; }
+.spec-rec-name { font-size: 1rem; font-weight: 700; font-family: var(--font-display); }
+.find-doc-btn {
+  width: 100%; padding: 12px;
+  background: var(--accent);
+  color: white;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.18s;
+}
+.find-doc-btn:hover { background: var(--accent2); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2);
+  border-radius: 20px;
+  width: 100%; max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  transform: translateY(20px);
+  transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  padding: 24px 28px 0;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.modal-header h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+.modal-close {
+  background: var(--bg3); border: none;
+  width: 32px; height: 32px; border-radius: 50%;
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--fg2);
+}
+.modal-body { padding: 20px 28px 28px; }
+.modal-doctor-top { display: flex; gap: 16px; margin-bottom: 20px; }
+.modal-avatar {
+  width: 72px; height: 72px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.4rem;
+  color: white; flex-shrink: 0;
+}
+.modal-doctor-info h4 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+.modal-spec { color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+.modal-detail-row { display: flex; gap: 8px; align-items: center; font-size: 0.82rem; color: var(--fg2); margin-bottom: 4px; }
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;
+}
+.info-item { background: var(--bg3); border-radius: var(--radius-sm); padding: 12px 14px; }
+.info-label { font-size: 0.72rem; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.info-value { font-size: 0.9rem; font-weight: 600; }
+.time-slots { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.time-slot {
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  background: var(--bg);
+  color: var(--fg2);
+}
+.time-slot:hover, .time-slot.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.time-slot.unavailable { opacity: 0.35; cursor: not-allowed; text-decoration: line-through; }
+.confirm-btn {
+  width: 100%; padding: 13px;
+  background: var(--accent); color: white;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; font-family: var(--font-body);
+  transition: all 0.18s;
+}
+.confirm-btn:hover { background: var(--accent2); }
+
+/* SUCCESS TOAST */
+.toast {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: white;
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  font-size: 0.9rem; font-weight: 600;
+  z-index: 300;
+  transition: transform 0.3s ease;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ABOUT PAGE */
+.about-hero {
+  background: linear-gradient(135deg, #1a6ef5 0%, #7c3aed 100%);
+  border-radius: 20px;
+  padding: 56px 40px;
+  color: white;
+  text-align: center;
+  margin-bottom: 48px;
+}
+.about-hero h1 { font-family: var(--font-display); font-size: clamp(1.8rem,3vw,2.4rem); font-weight: 700; margin-bottom: 12px; }
+.about-hero p { opacity: 0.88; max-width: 520px; margin: auto; }
+.about-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 20px; margin-bottom: 48px; }
+.about-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+}
+.about-card-icon { font-size: 32px; margin-bottom: 14px; }
+.about-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.about-card p { font-size: 0.85rem; color: var(--fg2); line-height: 1.6; }
+.tech-stack {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+}
+.tech-stack h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+.tech-items { display: flex; flex-wrap: wrap; gap: 10px; }
+.tech-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 16px;
+  font-size: 0.85rem; font-weight: 500;
+}
+
+/* HAMBURGER */
+.hamburger { display: none; background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 10px; cursor: pointer; color: var(--fg); font-size: 18px; }
+@media (max-width: 640px) {
+  .hamburger { display: flex; }
+  .nav-links { display: none; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px; z-index: 99; }
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+  margin-top: 40px;
+  color: var(--fg3);
+  font-size: 0.82rem;
+  text-align: center;
+}
+footer strong { color: var(--accent); }
+
+/* No results */
+.no-results { text-align: center; padding: 48px 24px; color: var(--fg3); }
+.no-results-icon { font-size: 48px; margin-bottom: 12px; }
+.no-results h3 { font-size: 1rem; color: var(--fg2); margin-bottom: 6px; }
+</style>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#home" onclick="return showPage('home')">
+      <div class="logo-icon">✚</div>
+      MediConnect
+    </a>
+    <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home" onclick="return showPage('home')" id="nav-home" class="active">Home</a></li>
+      <li><a href="#doctors" onclick="return showPage('doctors')" id="nav-doctors">Find Doctors</a></li>
+      <li><a href="#checker" onclick="return showPage('checker')" id="nav-checker">Symptom Checker</a></li>
+      <li><a href="#about" onclick="return showPage('about')" id="nav-about">About</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+      <a class="btn btn-primary" href="#checker" onclick="return showPage('checker')">Check Symptoms</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div style="max-width:1200px;margin:auto;">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-eyebrow">✦ AI-Powered Healthcare</div>
+        <h1>Find the Right Doctor, <span>Right Now</span></h1>
+        <p>Describe your symptoms and our AI instantly recommends the right specialist. Book appointments with top-rated doctors in seconds.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#checker" onclick="return showPage('checker')">🤖 Check Symptoms</a>
+          <a class="btn btn-ghost" href="#doctors" onclick="return showPage('doctors')">Browse Doctors</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item"><span class="stat-num">2,400+</span><span class="stat-label">Verified Doctors</span></div>
+          <div class="stat-item"><span class="stat-num">98%</span><span class="stat-label">Patient Satisfaction</span></div>
+          <div class="stat-item"><span class="stat-num">50+</span><span class="stat-label">Specialties</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <span style="font-weight:700;font-family:var(--font-display);font-size:0.95rem;">AI Symptom Analysis</span>
+            <span class="ai-badge">LIVE AI</span>
+          </div>
+          <div class="symptom-tags">
+            <span class="symptom-tag">Headache</span>
+            <span class="symptom-tag">Fever</span>
+            <span class="symptom-tag">Fatigue</span>
+          </div>
+          <div class="ai-result">
+            <div class="ai-result-label">🤖 AI Recommendation</div>
+            <div class="ai-result-text">Likely viral infection — consult a General Physician. Low urgency.</div>
+            <div class="ai-typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features strip -->
+  <div class="features-strip">
+    <div class="features-strip-inner">
+      <div class="feature-item">
+        <div class="feature-icon" style="background:var(--accent-soft);">🤖</div>
+        <div>
+          <h4>AI Diagnosis</h4>
+          <p>Smart symptom analysis powered by medical knowledge base</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon" style="background:var(--green-soft);">🔒</div>
+        <div>
+          <h4>Verified Doctors</h4>
+          <p>Every doctor is credentialed and background-checked</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon" style="background:var(--orange-soft);">⚡</div>
+        <div>
+          <h4>Instant Booking</h4>
+          <p>Book same-day or schedule future appointments easily</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon" style="background:var(--red-soft);">💊</div>
+        <div>
+          <h4>Health Records</h4>
+          <p>Secure digital health records accessible anywhere</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="content-wrap">
+    <div class="section-header">
+      <span class="section-eyebrow">How It Works</span>
+      <h2>From Symptoms to Specialist in 3 Steps</h2>
+      <p>Our AI engine maps your symptoms to the most relevant specialist and finds available doctors near you.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-bottom:72px;">
+      <div style="text-align:center;padding:32px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="width:56px;height:56px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;">📋</div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Step 01</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px;">Describe Symptoms</h3>
+        <p style="font-size:0.82rem;color:var(--fg2);">Select from our symptom library or type your own in plain language.</p>
+      </div>
+      <div style="text-align:center;padding:32px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="width:56px;height:56px;background:linear-gradient(135deg,#1a6ef5,#7c3aed);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;">🤖</div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Step 02</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px;">AI Analysis</h3>
+        <p style="font-size:0.82rem;color:var(--fg2);">Our AI cross-references symptoms against a medical knowledge base to identify likely conditions.</p>
+      </div>
+      <div style="text-align:center;padding:32px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="width:56px;height:56px;background:var(--green-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;">📅</div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Step 03</div>
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:8px;">Book Appointment</h3>
+        <p style="font-size:0.82rem;color:var(--fg2);">Instantly book with a recommended specialist. Get confirmed in seconds.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCTORS PAGE -->
+<div class="page" id="page-doctors">
+  <div class="content-wrap" style="padding-top:40px;">
+    <div class="section-header">
+      <span class="section-eyebrow">Our Network</span>
+      <h2>Find Your Doctor</h2>
+      <p>Browse by specialty or search by name. All doctors are verified and accepting new patients.</p>
+    </div>
+
+    <!-- Specialty filter -->
+    <div class="specialty-grid" id="specialtyGrid"></div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <input class="search-input" type="text" id="doctorSearch" placeholder="🔍  Search by name or keyword..." oninput="filterDoctors()">
+      <select class="search-input" id="availFilter" onchange="filterDoctors()" style="max-width:180px;">
+        <option value="">All Availability</option>
+        <option value="available">Available Today</option>
+        <option value="busy">Busy</option>
+      </select>
+    </div>
+
+    <!-- Doctor grid -->
+    <div class="doctor-grid" id="doctorGrid"></div>
+    <div class="no-results" id="noResults" hidden>
+      <div class="no-results-icon">🔍</div>
+      <h3>No doctors found</h3>
+      <p>Try a different search or specialty filter</p>
+    </div>
+  </div>
+</div>
+
+<!-- SYMPTOM CHECKER PAGE -->
+<div class="page" id="page-checker">
+  <div class="content-wrap" style="padding-top:40px;">
+    <div class="checker-wrap">
+      <div class="checker-card">
+        <div class="checker-header">
+          <h2>🤖 AI Symptom Checker</h2>
+          <p>Select your symptoms below. Our AI will analyze them and recommend the right specialist for you.</p>
+        </div>
+        <div class="checker-body">
+          <div class="checker-label">Select Your Symptoms</div>
+          <div class="quick-symptoms">
+            <div class="quick-label">Common symptoms — click to add:</div>
+            <div class="symptom-chips" id="symptomChips"></div>
+          </div>
+          <div class="checker-label">Selected Symptoms</div>
+          <div class="selected-symptoms" id="selectedSymptoms">
+            <span style="color:var(--fg3);font-size:0.82rem;align-self:center;">No symptoms selected yet</span>
+          </div>
+          <button class="analyze-btn" id="analyzeBtn" onclick="analyzeSymptoms()" disabled>
+            🤖 Analyze with AI
+          </button>
+
+          <!-- Result -->
+          <div class="ai-result-box" id="aiResultBox">
+            <div id="thinkingIndicator" class="ai-thinking" hidden>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <span>AI is analyzing your symptoms...</span>
+            </div>
+            <div id="resultContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT PAGE -->
+<div class="page" id="page-about">
+  <div class="content-wrap" style="padding-top:40px;">
+    <div class="about-hero">
+      <h1>About MediConnect</h1>
+      <p>We're using AI to make quality healthcare accessible to everyone — by matching patients with the right specialist faster than ever before.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-icon">🎯</div>
+        <h3>Our Mission</h3>
+        <p>To eliminate the confusion of "which doctor should I see?" by giving every patient intelligent, instant guidance based on their symptoms.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🤖</div>
+        <h3>AI-Powered Engine</h3>
+        <p>Our symptom analysis engine maps patient-reported symptoms against a curated medical knowledge base to surface the most likely conditions and appropriate specialists.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🔒</div>
+        <h3>Privacy First</h3>
+        <p>Your health data never leaves your browser. All analysis happens client-side. No accounts required to use the symptom checker.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">⚡</div>
+        <h3>Built with AI</h3>
+        <p>This entire platform was designed and developed using Claude AI — from the UI design to the symptom analysis logic and doctor database.</p>
+      </div>
+    </div>
+    <div class="tech-stack">
+      <h3>Technology Stack</h3>
+      <div class="tech-items">
+        <span class="tech-item">HTML5 / CSS3</span>
+        <span class="tech-item">Vanilla JavaScript</span>
+        <span class="tech-item">Claude AI (Design + Logic)</span>
+        <span class="tech-item">Rule-based AI Engine</span>
+        <span class="tech-item">Responsive Design</span>
+        <span class="tech-item">Dark Mode Support</span>
+        <span class="tech-item">No-Backend Architecture</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Book Appointment</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Appointment booked successfully!</div>
+
+<footer>
+  <div style="max-width:1200px;margin:auto;">
+    <strong>MediConnect</strong> — AI-Powered Doctor Finder &amp; Symptom Checker<br>
+    <span style="font-size:0.75rem;margin-top:4px;display:block;">Built with Claude AI · For educational &amp; assessment purposes only · Not a substitute for professional medical advice</span>
+  </div>
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const SPECIALTIES = [
+  { id:'all', name:'All Doctors', icon:'👨‍⚕️', count:12 },
+  { id:'gp', name:'General Physician', icon:'🩺', count:3 },
+  { id:'cardio', name:'Cardiologist', icon:'❤️', count:2 },
+  { id:'neuro', name:'Neurologist', icon:'🧠', count:2 },
+  { id:'derm', name:'Dermatologist', icon:'🧴', count:2 },
+  { id:'ortho', name:'Orthopaedic', icon:'🦴', count:2 },
+  { id:'ent', name:'ENT Specialist', icon:'👂', count:1 },
+  { id:'gastro', name:'Gastroenterologist', icon:'💊', count:2 },
+  { id:'pulmo', name:'Pulmonologist', icon:'🫁', count:1 },
+  { id:'psych', name:'Psychiatrist', icon:'🧘', count:1 },
+];
+
+const DOCTORS = [
+  { id:1, name:'Dr. Priya Sharma', spec:'General Physician', specId:'gp', loc:'Mumbai, Maharashtra', exp:'12 yrs', rating:4.9, reviews:342, fee:'₹500', available:true, avatar:'PS', color:'#1a6ef5', tags:['Diabetes','Hypertension','Fever'], slots:['9:00 AM','10:30 AM','2:00 PM','4:30 PM'], about:'Dr. Priya Sharma is a highly experienced GP with 12 years of practice, specialising in lifestyle diseases and preventive care.' },
+  { id:2, name:'Dr. Rohit Mehta', spec:'Cardiologist', specId:'cardio', loc:'Delhi, NCR', exp:'18 yrs', rating:4.8, reviews:519, fee:'₹1,200', available:true, avatar:'RM', color:'#e11d48', tags:['Heart Disease','Hypertension','ECG'], slots:['11:00 AM','3:00 PM','5:00 PM'], about:'Senior interventional cardiologist with 18 years of experience at AIIMS Delhi. Expert in complex coronary interventions.' },
+  { id:3, name:'Dr. Ananya Krishnan', spec:'Neurologist', specId:'neuro', loc:'Bangalore, Karnataka', exp:'14 yrs', rating:4.7, reviews:287, fee:'₹900', available:false, avatar:'AK', color:'#7c3aed', tags:['Migraines','Epilepsy','Stroke'], slots:['10:00 AM','1:00 PM'], about:'Specialist in movement disorders and headache management. Trained at NIMHANS Bangalore.' },
+  { id:4, name:'Dr. Kavitha Reddy', spec:'Dermatologist', specId:'derm', loc:'Hyderabad, Telangana', exp:'9 yrs', rating:4.8, reviews:403, fee:'₹700', available:true, avatar:'KR', color:'#0891b2', tags:['Acne','Eczema','Hair Loss'], slots:['9:30 AM','11:30 AM','3:30 PM','5:30 PM'], about:'Award-winning dermatologist specialising in cosmetic and medical dermatology with a focus on South Asian skin types.' },
+  { id:5, name:'Dr. Arjun Nair', spec:'Orthopaedic Surgeon', specId:'ortho', loc:'Chennai, Tamil Nadu', exp:'16 yrs', rating:4.9, reviews:611, fee:'₹1,000', available:true, avatar:'AN', color:'#059669', tags:['Joint Pain','Sports Injury','Spine'], slots:['8:00 AM','10:00 AM','4:00 PM'], about:'Leading orthopaedic surgeon in South India with expertise in minimally invasive joint replacement surgery.' },
+  { id:6, name:'Dr. Sunita Patel', spec:'ENT Specialist', specId:'ent', loc:'Ahmedabad, Gujarat', exp:'11 yrs', rating:4.6, reviews:198, fee:'₹600', available:true, avatar:'SP', color:'#d97706', tags:['Sinusitis','Hearing Loss','Tonsils'], slots:['9:00 AM','11:00 AM','2:30 PM'], about:'ENT specialist with advanced training in endoscopic sinus surgery and cochlear implant procedures.' },
+  { id:7, name:'Dr. Vikram Singh', spec:'Gastroenterologist', specId:'gastro', loc:'Jaipur, Rajasthan', exp:'13 yrs', rating:4.7, reviews:324, fee:'₹850', available:false, avatar:'VS', color:'#be185d', tags:['IBS','Acid Reflux','Liver Disease'], slots:['10:30 AM','2:00 PM'], about:'Gastroenterology consultant specialising in inflammatory bowel disease and hepatology.' },
+  { id:8, name:'Dr. Meera Iyer', spec:'Pulmonologist', specId:'pulmo', loc:'Pune, Maharashtra', exp:'10 yrs', rating:4.8, reviews:267, fee:'₹750', available:true, avatar:'MI', color:'#0369a1', tags:['Asthma','COPD','Sleep Apnea'], slots:['9:00 AM','12:00 PM','3:00 PM','5:00 PM'], about:'Pulmonology and critical care specialist with expertise in bronchoscopy and sleep medicine.' },
+  { id:9, name:'Dr. Rajan Gupta', spec:'Psychiatrist', specId:'psych', loc:'Mumbai, Maharashtra', exp:'15 yrs', rating:4.9, reviews:445, fee:'₹1,100', available:true, avatar:'RG', color:'#6d28d9', tags:['Depression','Anxiety','ADHD'], slots:['10:00 AM','1:00 PM','4:00 PM'], about:'Senior psychiatrist with 15 years of experience in adult and adolescent mental health. Trained at KEM Hospital Mumbai.' },
+  { id:10, name:'Dr. Deepa Nambiar', spec:'Cardiologist', specId:'cardio', loc:'Kochi, Kerala', exp:'20 yrs', rating:4.9, reviews:728, fee:'₹1,500', available:true, avatar:'DN', color:'#dc2626', tags:['Heart Failure','Arrhythmia','Preventive Cardiology'], slots:['11:00 AM','2:00 PM'], about:'One of Kerala\'s most experienced cardiologists with expertise in electrophysiology and cardiac imaging.' },
+  { id:11, name:'Dr. Arun Joshi', spec:'General Physician', specId:'gp', loc:'Lucknow, UP', exp:'8 yrs', rating:4.6, reviews:189, fee:'₹400', available:true, avatar:'AJ', color:'#0f766e', tags:['Diabetes','Thyroid','Viral Fever'], slots:['9:00 AM','10:00 AM','3:00 PM','5:30 PM'], about:'Community-focused GP practising comprehensive primary care with special interest in metabolic disorders.' },
+  { id:12, name:'Dr. Swati Desai', spec:'Dermatologist', specId:'derm', loc:'Surat, Gujarat', exp:'7 yrs', rating:4.7, reviews:312, fee:'₹650', available:false, avatar:'SD', color:'#7c3aed', tags:['Psoriasis','Vitiligo','Skin Allergy'], slots:['10:00 AM','12:00 PM'], about:'Dermatologist specialising in autoimmune skin conditions and advanced laser treatments.' },
+];
+
+// ── SYMPTOM AI ENGINE ─────────────────────────────────────────────────────
+const SYMPTOMS = [
+  'Headache','Fever','Fatigue','Cough','Sore Throat','Chest Pain',
+  'Shortness of Breath','Nausea','Vomiting','Dizziness','Back Pain',
+  'Joint Pain','Skin Rash','Stomach Pain','Constipation','Diarrhoea',
+  'Heart Palpitations','Numbness','Blurred Vision','Anxiety','Insomnia',
+  'Hair Loss','Ear Pain','Sneezing','Muscle Pain'
+];
+
+const AI_RULES = [
+  {
+    match: s => s.includes('Chest Pain') || s.includes('Heart Palpitations') || s.includes('Shortness of Breath'),
+    conditions: [
+      { name:'Cardiac Arrhythmia', desc:'Irregular heartbeat pattern', prob:72 },
+      { name:'Angina Pectoris', desc:'Reduced blood flow to heart', prob:58 },
+      { name:'Anxiety-Induced', desc:'Stress-related chest symptoms', prob:45 },
+    ],
+    urgency:'high', urgencyText:'Seek immediate medical attention',
+    specialist:'Cardiologist', specIcon:'❤️', specId:'cardio',
+    tips:['Avoid strenuous activity', 'Do not drive yourself', 'Call emergency if pain worsens']
+  },
+  {
+    match: s => (s.includes('Headache') && s.includes('Fever')) || s.includes('Numbness') || s.includes('Blurred Vision'),
+    conditions: [
+      { name:'Migraine', desc:'Neurovascular headache disorder', prob:68 },
+      { name:'Tension Headache', desc:'Muscle contraction headache', prob:55 },
+      { name:'Viral Meningitis', desc:'Infection of brain membranes', prob:28 },
+    ],
+    urgency:'medium', urgencyText:'See a doctor within 24 hours',
+    specialist:'Neurologist', specIcon:'🧠', specId:'neuro',
+    tips:['Rest in a dark, quiet room', 'Stay hydrated', 'Avoid screens']
+  },
+  {
+    match: s => s.includes('Cough') || s.includes('Shortness of Breath') || (s.includes('Fever') && s.includes('Fatigue')),
+    conditions: [
+      { name:'Viral Upper Respiratory Infection', desc:'Common cold or flu-like illness', prob:75 },
+      { name:'Bronchitis', desc:'Inflammation of bronchial tubes', prob:52 },
+      { name:'Pneumonia', desc:'Lung infection — if fever is high', prob:30 },
+    ],
+    urgency:'low', urgencyText:'Monitor symptoms; see GP if no improvement in 3 days',
+    specialist:'General Physician', specIcon:'🩺', specId:'gp',
+    tips:['Rest and stay hydrated', 'Steam inhalation may help', 'Honey and ginger for sore throat']
+  },
+  {
+    match: s => s.includes('Skin Rash') || s.includes('Hair Loss'),
+    conditions: [
+      { name:'Contact Dermatitis', desc:'Skin reaction to allergen or irritant', prob:65 },
+      { name:'Eczema', desc:'Chronic inflammatory skin condition', prob:50 },
+      { name:'Psoriasis', desc:'Autoimmune skin disorder', prob:38 },
+    ],
+    urgency:'low', urgencyText:'Book appointment within a week',
+    specialist:'Dermatologist', specIcon:'🧴', specId:'derm',
+    tips:['Avoid scratching the affected area', 'Use mild, fragrance-free soap', 'Note any new products used']
+  },
+  {
+    match: s => s.includes('Joint Pain') || s.includes('Back Pain') || s.includes('Muscle Pain'),
+    conditions: [
+      { name:'Musculoskeletal Strain', desc:'Muscle or ligament overuse injury', prob:70 },
+      { name:'Osteoarthritis', desc:'Degenerative joint disease', prob:48 },
+      { name:'Rheumatoid Arthritis', desc:'Autoimmune joint inflammation', prob:32 },
+    ],
+    urgency:'low', urgencyText:'Book appointment within a week',
+    specialist:'Orthopaedic Surgeon', specIcon:'🦴', specId:'ortho',
+    tips:['Apply ice/heat therapy', 'Avoid high-impact activities', 'Gentle stretching may help']
+  },
+  {
+    match: s => s.includes('Stomach Pain') || s.includes('Nausea') || s.includes('Constipation') || s.includes('Diarrhoea') || s.includes('Vomiting'),
+    conditions: [
+      { name:'Gastroenteritis', desc:'Stomach and intestine inflammation', prob:65 },
+      { name:'IBS', desc:'Irritable Bowel Syndrome', prob:50 },
+      { name:'GERD', desc:'Acid reflux disease', prob:42 },
+    ],
+    urgency:'low', urgencyText:'See a doctor if symptoms persist beyond 48 hours',
+    specialist:'Gastroenterologist', specIcon:'💊', specId:'gastro',
+    tips:['Stay hydrated with ORS', 'Eat bland foods (BRAT diet)', 'Avoid dairy and spicy food']
+  },
+  {
+    match: s => s.includes('Anxiety') || s.includes('Insomnia'),
+    conditions: [
+      { name:'Generalised Anxiety Disorder', desc:'Persistent excessive worry', prob:62 },
+      { name:'Insomnia Disorder', desc:'Chronic sleep difficulty', prob:55 },
+      { name:'Depression', desc:'Persistent low mood affecting daily life', prob:40 },
+    ],
+    urgency:'medium', urgencyText:'Schedule a consultation within 2–3 days',
+    specialist:'Psychiatrist', specIcon:'🧘', specId:'psych',
+    tips:['Maintain a consistent sleep schedule', 'Limit caffeine and screens at night', 'Breathing exercises can help']
+  },
+  {
+    match: s => s.includes('Ear Pain') || s.includes('Sneezing'),
+    conditions: [
+      { name:'Sinusitis', desc:'Inflammation of sinuses', prob:68 },
+      { name:'Allergic Rhinitis', desc:'Allergic nasal inflammation', prob:60 },
+      { name:'Otitis Media', desc:'Middle ear infection', prob:45 },
+    ],
+    urgency:'low', urgencyText:'Book appointment within a week',
+    specialist:'ENT Specialist', specIcon:'👂', specId:'ent',
+    tips:['Nasal saline rinse can provide relief', 'Antihistamines for allergy symptoms', 'Keep hydrated']
+  },
+];
+
+const DEFAULT_RULE = {
+  conditions:[
+    { name:'General Illness / Fatigue', desc:'Non-specific symptoms requiring assessment', prob:60 },
+    { name:'Stress-Related Condition', desc:'Lifestyle or stress-induced symptoms', prob:48 },
+    { name:'Nutritional Deficiency', desc:'Vitamin or mineral imbalance', prob:35 },
+  ],
+  urgency:'low', urgencyText:'Monitor symptoms and see a General Physician if they persist',
+  specialist:'General Physician', specIcon:'🩺', specId:'gp',
+  tips:['Maintain regular meals and hydration', 'Get adequate sleep', 'Light exercise can improve energy']
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let selectedSpecialty = 'all';
+let selectedSymptoms = [];
+let selectedSlot = null;
+let currentDoctor = null;
+let isDark = false;
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderSpecialties();
+  renderDoctors();
+  renderSymptomChips();
+  // Hash routing
+  handleHash();
+  window.addEventListener('hashchange', handleHash);
+  // Theme persistence
+  try {
+    const saved = localStorage.getItem('mc-theme');
+    if (saved === 'dark') applyTheme(true);
+  } catch(e) {}
+});
+
+function handleHash() {
+  const h = location.hash.replace('#','');
+  const valid = ['doctors','checker','about'];
+  if (valid.includes(h)) showPage(h, false);
+  else if (!h || h === 'home') showPage('home', false);
+  // ignore claude.ai reserved hashes like 'settings', 'sidebar', etc.
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function showPage(name, setHash=true) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const page = document.getElementById('page-'+name);
+  if (!page) return false;
+  page.classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if (navEl) navEl.classList.add('active');
+  if (setHash) {
+    // use replaceState to avoid triggering hashchange
+    history.replaceState(null, '', name === 'home' ? location.pathname : '#' + name);
+  }
+  const nav = document.getElementById('navLinks');
+  if (nav) nav.classList.remove('open');
+  window.scrollTo(0,0);
+  return false;
+}
+
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  applyTheme(!isDark);
+  try { localStorage.setItem('mc-theme', isDark ? 'dark' : 'light'); } catch(e) {}
+}
+function applyTheme(dark) {
+  isDark = dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+}
+
+// ── SPECIALTIES ───────────────────────────────────────────────────────────
+function renderSpecialties() {
+  const grid = document.getElementById('specialtyGrid');
+  grid.innerHTML = SPECIALTIES.map(s => `
+    <div class="specialty-card ${s.id===selectedSpecialty?'selected':''}" onclick="selectSpecialty('${s.id}')">
+      <div class="spec-icon">${s.icon}</div>
+      <div class="spec-name">${s.name}</div>
+      <div class="spec-count">${s.id==='all'?DOCTORS.length:DOCTORS.filter(d=>d.specId===s.id).length} doctors</div>
+    </div>
+  `).join('');
+}
+
+function selectSpecialty(id) {
+  selectedSpecialty = id;
+  renderSpecialties();
+  filterDoctors();
+}
+
+// ── DOCTORS ───────────────────────────────────────────────────────────────
+function renderDoctors(list) {
+  const docs = list || DOCTORS;
+  const grid = document.getElementById('doctorGrid');
+  const noRes = document.getElementById('noResults');
+  if (!docs.length) { grid.innerHTML=''; noRes.hidden=false; return; }
+  noRes.hidden = true;
+  grid.innerHTML = docs.map(d => `
+    <div class="doctor-card" onclick="openDoctorModal(${d.id})">
+      <div class="doctor-top">
+        <div class="doctor-avatar" style="background:${d.color}">${d.avatar}</div>
+        <div class="doctor-info">
+          <h3>${d.name}</h3>
+          <div class="doctor-spec">${d.spec}</div>
+          <div class="doctor-loc">📍 ${d.loc}</div>
+        </div>
+      </div>
+      <div class="doctor-stats">
+        <span class="doc-stat"><span class="stars">★</span> ${d.rating} <span style="color:var(--fg3)">(${d.reviews})</span></span>
+        <span class="doc-stat">🏥 ${d.exp} exp.</span>
+        <span class="doc-stat">💰 ${d.fee}</span>
+      </div>
+      <div class="doctor-tags">
+        ${d.tags.map(t=>`<span class="tag">${t}</span>`).join('')}
+        <span class="tag ${d.available?'available':'busy'}">${d.available?'✓ Available Today':'Busy'}</span>
+      </div>
+      <button class="book-btn">Book Appointment →</button>
+    </div>
+  `).join('');
+}
+
+function filterDoctors() {
+  const q = document.getElementById('doctorSearch').value.toLowerCase();
+  const avail = document.getElementById('availFilter').value;
+  let list = DOCTORS;
+  if (selectedSpecialty !== 'all') list = list.filter(d => d.specId === selectedSpecialty);
+  if (q) list = list.filter(d => d.name.toLowerCase().includes(q) || d.spec.toLowerCase().includes(q) || d.tags.some(t=>t.toLowerCase().includes(q)));
+  if (avail==='available') list = list.filter(d=>d.available);
+  if (avail==='busy') list = list.filter(d=>!d.available);
+  renderDoctors(list);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function openDoctorModal(id) {
+  const d = DOCTORS.find(x=>x.id===id);
+  if (!d) return;
+  currentDoctor = d;
+  selectedSlot = null;
+  document.getElementById('modalTitle').textContent = 'Book with ' + d.name;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-doctor-top">
+      <div class="modal-avatar" style="background:${d.color}">${d.avatar}</div>
+      <div>
+        <div class="modal-spec">${d.spec}</div>
+        <div class="modal-detail-row">📍 ${d.loc}</div>
+        <div class="modal-detail-row">★ ${d.rating} · ${d.reviews} reviews</div>
+      </div>
+    </div>
+    <p style="font-size:0.85rem;color:var(--fg2);margin-bottom:20px;line-height:1.7;">${d.about}</p>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Experience</div><div class="info-value">${d.exp}</div></div>
+      <div class="info-item"><div class="info-label">Consultation Fee</div><div class="info-value">${d.fee}</div></div>
+    </div>
+    <div class="checker-label" style="margin-bottom:10px;">Available Slots — Today</div>
+    <div class="time-slots">
+      ${d.slots.map((s,i)=>`<div class="time-slot ${i===1&&!d.available?'unavailable':''}" onclick="selectSlot(this,'${s}')">${s}</div>`).join('')}
+    </div>
+    <button class="confirm-btn" onclick="confirmBooking()">Confirm Appointment</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function selectSlot(el, slot) {
+  if (el.classList.contains('unavailable')) return;
+  document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSlot = slot;
+}
+
+function confirmBooking() {
+  if (!selectedSlot) { alert('Please select a time slot first.'); return; }
+  closeModalDirect();
+  showToast(`✓ Appointment booked with ${currentDoctor.name} at ${selectedSlot}`);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ── SYMPTOM CHECKER ───────────────────────────────────────────────────────
+function renderSymptomChips() {
+  document.getElementById('symptomChips').innerHTML = SYMPTOMS.map(s =>
+    `<div class="symptom-chip" onclick="toggleSymptom('${s}')" id="chip-${s.replace(/\s/g,'_')}">${s}</div>`
+  ).join('');
+}
+
+function toggleSymptom(name) {
+  const idx = selectedSymptoms.indexOf(name);
+  if (idx > -1) selectedSymptoms.splice(idx,1);
+  else selectedSymptoms.push(name);
+  updateChipUI();
+  updateSelectedDisplay();
+  document.getElementById('analyzeBtn').disabled = selectedSymptoms.length === 0;
+  document.getElementById('aiResultBox').classList.remove('visible');
+}
+
+function updateChipUI() {
+  SYMPTOMS.forEach(s => {
+    const chip = document.getElementById('chip-'+s.replace(/\s/g,'_'));
+    if (chip) chip.classList.toggle('active', selectedSymptoms.includes(s));
+  });
+}
+
+function updateSelectedDisplay() {
+  const wrap = document.getElementById('selectedSymptoms');
+  if (!selectedSymptoms.length) {
+    wrap.innerHTML = '<span style="color:var(--fg3);font-size:0.82rem;align-self:center;">No symptoms selected yet</span>';
+    return;
+  }
+  wrap.innerHTML = selectedSymptoms.map(s=>`
+    <div class="sel-chip">${s}<button onclick="toggleSymptom('${s}')">✕</button></div>
+  `).join('');
+}
+
+function analyzeSymptoms() {
+  if (!selectedSymptoms.length) return;
+  const resultBox = document.getElementById('aiResultBox');
+  const thinking = document.getElementById('thinkingIndicator');
+  const content = document.getElementById('resultContent');
+  resultBox.classList.add('visible');
+  thinking.hidden = false;
+  content.innerHTML = '';
+  setTimeout(() => {
+    thinking.hidden = true;
+    const rule = AI_RULES.find(r => r.match(selectedSymptoms)) || DEFAULT_RULE;
+    const urgencyClass = { high:'urgency-high', medium:'urgency-medium', low:'urgency-low' }[rule.urgency];
+    const urgencyIcon = { high:'🚨', medium:'⚠️', low:'✅' }[rule.urgency];
+    content.innerHTML = `
+      <div class="result-card">
+        <div class="result-section-title">Possible Conditions</div>
+        ${rule.conditions.map(c=>`
+          <div class="condition-item">
+            <div><div class="condition-name">${c.name}</div><div class="condition-desc">${c.desc}</div></div>
+            <div class="prob-bar-wrap">
+              <div class="prob-label">${c.prob}%</div>
+              <div class="prob-bar"><div class="prob-fill" style="width:${c.prob}%"></div></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="urgency-badge ${urgencyClass}">${urgencyIcon} ${rule.urgencyText}</div>
+      <div class="specialist-rec">
+        <div class="spec-rec-icon">${rule.specIcon}</div>
+        <div>
+          <div class="spec-rec-title">AI Recommends</div>
+          <div class="spec-rec-name">${rule.specialist}</div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="result-section-title">💡 Self-Care Tips</div>
+        ${rule.tips.map(t=>`<div style="font-size:0.85rem;color:var(--fg2);padding:6px 0;border-bottom:1px solid var(--border);">• ${t}</div>`).join('')}
+        <p style="font-size:0.72rem;color:var(--fg3);margin-top:12px;">⚠️ This is AI-generated guidance only. Always consult a qualified medical professional for diagnosis and treatment.</p>
+      </div>
+      <button class="find-doc-btn" onclick="findSpecialist('${rule.specId}')">Find ${rule.specialist} →</button>
+    `;
+    // animate bars
+    setTimeout(() => {
+      document.querySelectorAll('.prob-fill').forEach(b=>{
+        const w = b.style.width; b.style.width='0';
+        requestAnimationFrame(()=>{ b.style.width=w; });
+      });
+    }, 50);
+  }, 1800);
+}
+
+function findSpecialist(specId) {
+  selectedSpecialty = specId;
+  renderSpecialties();
+  filterDoctors();
+  showPage('doctors');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+</script>
+
+</body></html>
