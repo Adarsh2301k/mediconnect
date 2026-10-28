@@ -1328,55 +1328,112 @@ function updateSelectedDisplay() {
   `).join('');
 }
 
-function analyzeSymptoms() {
+const GEMINI_KEY = 'AIzaSyDs55Kmwfwfjnh3nnJmS2GUvgY2vdNJWwA';
+
+async function analyzeSymptoms() {
   if (!selectedSymptoms.length) return;
   const resultBox = document.getElementById('aiResultBox');
   const thinking = document.getElementById('thinkingIndicator');
   const content = document.getElementById('resultContent');
+  const btn = document.getElementById('analyzeBtn');
   resultBox.classList.add('visible');
   thinking.hidden = false;
   content.innerHTML = '';
-  setTimeout(() => {
+  btn.disabled = true;
+  btn.textContent = '🤖 Analyzing with Gemini AI...';
+
+  const prompt = `You are a medical triage assistant. A patient reports these symptoms: ${selectedSymptoms.join(', ')}.
+
+Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
+{
+  "conditions": [
+    {"name": "Condition Name", "desc": "one line description", "prob": 75},
+    {"name": "Condition Name", "desc": "one line description", "prob": 55},
+    {"name": "Condition Name", "desc": "one line description", "prob": 35}
+  ],
+  "urgency": "low",
+  "urgencyText": "Monitor and see a GP if no improvement in 3 days",
+  "specialist": "General Physician",
+  "specIcon": "🩺",
+  "specId": "gp",
+  "tips": ["tip one", "tip two", "tip three"]
+}
+
+Rules:
+- urgency must be one of: low, medium, high
+- specId must be one of: gp, cardio, neuro, derm, ortho, ent, gastro, pulmo, psych
+- prob values between 20-85, realistic and descending
+- Base everything on real medical knowledge`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 700 }
+        })
+      }
+    );
+    const data = await res.json();
+    const raw = data.candidates[0].content.parts[0].text;
+    const jsonStr = raw.replace(/```json|```/g, '').trim();
+    const rule = JSON.parse(jsonStr);
     thinking.hidden = true;
+    btn.disabled = false;
+    btn.textContent = '🤖 Analyze with AI';
+    renderResult(rule, true);
+  } catch(e) {
+    thinking.hidden = true;
+    btn.disabled = false;
+    btn.textContent = '🤖 Analyze with AI';
     const rule = AI_RULES.find(r => r.match(selectedSymptoms)) || DEFAULT_RULE;
-    const urgencyClass = { high:'urgency-high', medium:'urgency-medium', low:'urgency-low' }[rule.urgency];
-    const urgencyIcon = { high:'🚨', medium:'⚠️', low:'✅' }[rule.urgency];
-    content.innerHTML = `
-      <div class="result-card">
-        <div class="result-section-title">Possible Conditions</div>
-        ${rule.conditions.map(c=>`
-          <div class="condition-item">
-            <div><div class="condition-name">${c.name}</div><div class="condition-desc">${c.desc}</div></div>
-            <div class="prob-bar-wrap">
-              <div class="prob-label">${c.prob}%</div>
-              <div class="prob-bar"><div class="prob-fill" style="width:${c.prob}%"></div></div>
-            </div>
+    renderResult(rule, false);
+  }
+}
+
+function renderResult(rule, isGemini) {
+  const content = document.getElementById('resultContent');
+  const urgencyClass = { high:'urgency-high', medium:'urgency-medium', low:'urgency-low' }[rule.urgency] || 'urgency-low';
+  const urgencyIcon = { high:'🚨', medium:'⚠️', low:'✅' }[rule.urgency] || '✅';
+  content.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <span style="font-size:0.75rem;padding:4px 12px;border-radius:100px;font-weight:700;background:${isGemini?'linear-gradient(135deg,#1a6ef5,#7c3aed)':'var(--bg3)'};color:${isGemini?'white':'var(--fg3)'}">
+        ${isGemini ? '✦ Powered by Gemini AI' : '⚙ Rule-based fallback'}
+      </span>
+    </div>
+    <div class="result-card">
+      <div class="result-section-title">Possible Conditions</div>
+      ${rule.conditions.map(c=>`
+        <div class="condition-item">
+          <div><div class="condition-name">${c.name}</div><div class="condition-desc">${c.desc}</div></div>
+          <div class="prob-bar-wrap">
+            <div class="prob-label">${c.prob}%</div>
+            <div class="prob-bar"><div class="prob-fill" style="width:0%" data-w="${c.prob}%"></div></div>
           </div>
-        `).join('')}
-      </div>
-      <div class="urgency-badge ${urgencyClass}">${urgencyIcon} ${rule.urgencyText}</div>
-      <div class="specialist-rec">
-        <div class="spec-rec-icon">${rule.specIcon}</div>
-        <div>
-          <div class="spec-rec-title">AI Recommends</div>
-          <div class="spec-rec-name">${rule.specialist}</div>
         </div>
+      `).join('')}
+    </div>
+    <div class="urgency-badge ${urgencyClass}">${urgencyIcon} ${rule.urgencyText}</div>
+    <div class="specialist-rec">
+      <div class="spec-rec-icon">${rule.specIcon}</div>
+      <div>
+        <div class="spec-rec-title">AI Recommends</div>
+        <div class="spec-rec-name">${rule.specialist}</div>
       </div>
-      <div class="result-card">
-        <div class="result-section-title">💡 Self-Care Tips</div>
-        ${rule.tips.map(t=>`<div style="font-size:0.85rem;color:var(--fg2);padding:6px 0;border-bottom:1px solid var(--border);">• ${t}</div>`).join('')}
-        <p style="font-size:0.72rem;color:var(--fg3);margin-top:12px;">⚠️ This is AI-generated guidance only. Always consult a qualified medical professional for diagnosis and treatment.</p>
-      </div>
-      <button class="find-doc-btn" onclick="findSpecialist('${rule.specId}')">Find ${rule.specialist} →</button>
-    `;
-    // animate bars
-    setTimeout(() => {
-      document.querySelectorAll('.prob-fill').forEach(b=>{
-        const w = b.style.width; b.style.width='0';
-        requestAnimationFrame(()=>{ b.style.width=w; });
-      });
-    }, 50);
-  }, 1800);
+    </div>
+    <div class="result-card">
+      <div class="result-section-title">💡 Self-Care Tips</div>
+      ${rule.tips.map(t=>`<div style="font-size:0.85rem;color:var(--fg2);padding:6px 0;border-bottom:1px solid var(--border);">• ${t}</div>`).join('')}
+      <p style="font-size:0.72rem;color:var(--fg3);margin-top:12px;">⚠️ AI-generated guidance only. Always consult a qualified medical professional.</p>
+    </div>
+    <button class="find-doc-btn" onclick="findSpecialist('${rule.specId}')">Find ${rule.specialist} →</button>
+  `;
+  setTimeout(() => {
+    document.querySelectorAll('.prob-fill').forEach(b => { b.style.width = b.dataset.w; });
+  }, 50);
 }
 
 function findSpecialist(specId) {
